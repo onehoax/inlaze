@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +18,18 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    // check that a user with the same email doesn't exist yet
+    const email = createUserDto.email;
+    const user = await this.userRepository.findOne({
+      where: { email: email, is_deleted: false },
+    });
+
+    // if exists then there is a conflict
+    if (user !== null)
+      throw new ConflictException(
+        `User with email: ${email} already exists in the db.`,
+      );
+
     // if role is not null, check that the role exists
     if (createUserDto.role.id !== null) {
       const role = await this.roleRepository.findOne({
@@ -53,6 +69,17 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
+    // check that a user with the same email doesn't exist yet
+    const user = await this.userRepository.findOne({
+      where: { email: updateUserDto.email, is_deleted: false },
+    });
+
+    // if exists then there is a conflict
+    if (user !== null)
+      throw new ConflictException(
+        `User with email: ${user.email} already exists in the db.`,
+      );
+
     // if role is not null, check that the role exists
     if (updateUserDto.role.id !== null) {
       const role = await this.roleRepository.findOne({

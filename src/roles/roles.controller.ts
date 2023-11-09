@@ -14,6 +14,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -33,6 +34,9 @@ export class RolesController {
   })
   @ApiBadRequestResponse({
     description: 'bad request response if criteria in description is not met.',
+  })
+  @ApiConflictResponse({
+    description: 'conflict response if role already exists in the db.',
   })
   @ApiCreatedResponse({ type: Role })
   async create(@Body() createRoleDto: CreateRoleDto) {
@@ -74,6 +78,9 @@ export class RolesController {
   })
   @ApiNotFoundResponse({
     description: 'not found response if role is not present in the role table.',
+  })
+  @ApiConflictResponse({
+    description: 'conflict response if trying to update to existing name in db',
   })
   @ApiBadRequestResponse({
     description: 'bad request response if criteria in description is not met.',

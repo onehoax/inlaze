@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,7 +17,19 @@ export class RolesService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  create(createRoleDto: CreateRoleDto) {
+  async create(createRoleDto: CreateRoleDto) {
+    // check that a role with the same name doesn't exist yet
+    const name = createRoleDto.name;
+    const role = await this.roleRepository.findOne({
+      where: { name: name, is_deleted: false },
+    });
+
+    // if exists then there is a conflict
+    if (role !== null)
+      throw new ConflictException(
+        `Role with name: ${name} already exists in the db.`,
+      );
+
     return this.roleRepository.save(createRoleDto);
   }
 
@@ -30,7 +46,18 @@ export class RolesService {
     });
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
+  async update(id: number, updateRoleDto: UpdateRoleDto) {
+    // check that a role with the same name doesn't exist yet
+    const role = await this.roleRepository.findOne({
+      where: { name: updateRoleDto.name, is_deleted: false },
+    });
+
+    // if exists then there is a conflict
+    if (role !== null)
+      throw new ConflictException(
+        `Role with name: ${role.name} already exists in the db.`,
+      );
+
     return this.roleRepository.update(
       { id: id, is_deleted: false },
       updateRoleDto,

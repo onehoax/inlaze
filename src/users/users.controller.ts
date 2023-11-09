@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -37,6 +38,9 @@ export class UsersController {
   })
   @ApiNotFoundResponse({
     description: 'not found response if role is not present in the role table.',
+  })
+  @ApiConflictResponse({
+    description: 'conflict response if user already exists in the db.',
   })
   @ApiCreatedResponse({ type: User })
   async create(@Body() createUserDto: CreateUserDto) {
@@ -80,6 +84,10 @@ export class UsersController {
   @ApiNotFoundResponse({
     description:
       'not found response if user/role are not present in their respective tables.',
+  })
+  @ApiConflictResponse({
+    description:
+      'conflict response if trying to update to existing email in db',
   })
   @ApiBadRequestResponse({
     description: 'bad request response if criteria in description is not met.',
