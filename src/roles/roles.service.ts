@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -38,12 +38,17 @@ export class RolesService {
   }
 
   async remove(id: number) {
+    // check if the role to be deleted exists
     const role = await this.roleRepository.findOne({
       where: { id, is_deleted: false },
     });
 
+    // if role exists
     if (role) {
-      await this.userRepository.update(
+      // update app_user set roleId = null where roleId = id;
+      // set the roleId to null in app_user where roleId = id,
+      // because this roleId can no longer be referenced
+      this.userRepository.update(
         { role: { id: role.id } },
         { role: { id: null } },
       );
@@ -52,12 +57,20 @@ export class RolesService {
         where: { name: role.name, is_deleted: true },
       });
 
+      // if there is an existing role with the same name
+      // that was logically deleted before, delete it physically
+      // so that there won't be a unique key constraint violation (name, is_deleted)
+      // when soft-deleting this one
       if (deletedRole) await this.roleRepository.delete(deletedRole.id);
-    }
 
-    return this.roleRepository.update(
-      { id: id, is_deleted: false },
-      { is_deleted: true },
-    );
+      // finally, perform the soft-delete
+      return this.roleRepository.update(
+        { id: id, is_deleted: false },
+        { is_deleted: true },
+      );
+    } else {
+      // if role doesn't exists, throw the corresponding exception
+      throw new NotFoundException(`Role with id: ${id} does not exist.`);
+    }
   }
 }

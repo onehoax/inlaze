@@ -32,18 +32,6 @@ export class UsersService {
         is_deleted: false,
       },
     });
-
-    // return (
-    //   this.userRepository
-    //     .createQueryBuilder('u')
-    //     .select('u.*')
-    //     .leftJoin('u.role', 'role', 'role.is_deleted = :deleted', {
-    //       deleted: false,
-    //     })
-    //     .where('u.id = :id', { id })
-    //     // .andWhere('role.is_deleted = :deleted', { deleted: false })
-    //     .getRawOne()
-    // );
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
