@@ -19,7 +19,7 @@ $ npm install
     - If you want to run the init.sql file in a clean container, first remove the `./postgres/data` folder, then run `docker-compose up` again
 - Container commands (these commands assume you have docker, docker-compose installed on your machine and that your user is part of the docker group):
 
-```bash
+````bash
 # runs the container in the foreground
 docker-compose up
 
@@ -31,15 +31,14 @@ docker stop postgres_db
 
 # connect to the container
 source .env
-psql postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}
-```
+psql postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}```
 
 ### NestJS App
 
 ```bash
 # development
 $ npm run start
-```
+````
 
 ## Test
 
