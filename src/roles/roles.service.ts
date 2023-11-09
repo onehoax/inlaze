@@ -10,6 +10,7 @@ import { User } from 'src/users/entities/user.entity';
 export class RolesService {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
+    @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
   create(createRoleDto: CreateRoleDto) {
@@ -36,7 +37,24 @@ export class RolesService {
     );
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const role = await this.roleRepository.findOne({
+      where: { id, is_deleted: false },
+    });
+
+    if (role) {
+      await this.userRepository.update(
+        { role: { id: role.id } },
+        { role: { id: null } },
+      );
+
+      const deletedRole = await this.roleRepository.findOne({
+        where: { name: role.name, is_deleted: true },
+      });
+
+      if (deletedRole) await this.roleRepository.delete(deletedRole.id);
+    }
+
     return this.roleRepository.update(
       { id: id, is_deleted: false },
       { is_deleted: true },
