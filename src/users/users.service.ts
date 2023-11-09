@@ -17,8 +17,9 @@ export class UsersService {
 
   findAll() {
     return this.userRepository.find({
-      relations: {
-        role: true,
+      relations: { role: true },
+      where: {
+        is_deleted: false,
       },
     });
   }
@@ -28,15 +29,34 @@ export class UsersService {
       relations: { role: true },
       where: {
         id: id,
+        is_deleted: false,
       },
     });
+
+    // return (
+    //   this.userRepository
+    //     .createQueryBuilder('u')
+    //     .select('u.*')
+    //     .leftJoin('u.role', 'role', 'role.is_deleted = :deleted', {
+    //       deleted: false,
+    //     })
+    //     .where('u.id = :id', { id })
+    //     // .andWhere('role.is_deleted = :deleted', { deleted: false })
+    //     .getRawOne()
+    // );
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
+    return this.userRepository.update(
+      { id: id, is_deleted: false },
+      updateUserDto,
+    );
   }
 
   remove(id: number) {
-    return this.userRepository.delete(id);
+    return this.userRepository.update(
+      { id: id, is_deleted: false },
+      { is_deleted: true },
+    );
   }
 }

@@ -4,6 +4,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class RolesService {
@@ -16,22 +17,29 @@ export class RolesService {
   }
 
   findAll() {
-    return this.roleRepository.find();
+    return this.roleRepository.find({ where: { is_deleted: false } });
   }
 
   findOne(id: number) {
     return this.roleRepository.findOne({
       where: {
         id: id,
+        is_deleted: false,
       },
     });
   }
 
   update(id: number, updateRoleDto: UpdateRoleDto) {
-    return this.roleRepository.update(id, updateRoleDto);
+    return this.roleRepository.update(
+      { id: id, is_deleted: false },
+      updateRoleDto,
+    );
   }
 
   remove(id: number) {
-    return this.roleRepository.delete(id);
+    return this.roleRepository.update(
+      { id: id, is_deleted: false },
+      { is_deleted: true },
+    );
   }
 }

@@ -6,10 +6,12 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
+@Unique(['name', 'is_deleted'])
 export class Role {
   @ApiProperty()
   @PrimaryGeneratedColumn()

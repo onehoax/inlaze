@@ -6,10 +6,12 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('app_user')
+@Unique(['email', 'is_deleted'])
 export class User {
   @ApiProperty()
   @PrimaryGeneratedColumn()

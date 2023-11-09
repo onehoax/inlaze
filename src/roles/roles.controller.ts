@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -34,22 +36,37 @@ export class RolesController {
 
   @Get(':id')
   @ApiOkResponse({ type: Role })
-  async findOne(@Param('id') id: string) {
-    const role = await this.rolesService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const role = await this.rolesService.findOne(id);
+
+    if (!role)
+      throw new NotFoundException(`Role with id: ${id} does not exist.`);
+
     return role;
   }
 
   @Patch(':id')
   @ApiOkResponse({ description: 'records affected' })
-  async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    const result = await this.rolesService.update(+id, updateRoleDto);
-    return result;
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    const result = await this.rolesService.update(id, updateRoleDto);
+
+    if (result.affected === 0)
+      throw new NotFoundException(`Role with id: ${id} does not exist.`);
+
+    return result.affected;
   }
 
   @Delete(':id')
   @ApiOkResponse({ description: 'records affected' })
-  async remove(@Param('id') id: string) {
-    const result = await this.rolesService.remove(+id);
-    return result;
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.rolesService.remove(id);
+
+    if (result.affected === 0)
+      throw new NotFoundException(`Role with id: ${id} does not exist.`);
+
+    return result.affected;
   }
 }

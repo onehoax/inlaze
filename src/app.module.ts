@@ -20,6 +20,7 @@ import { Role } from './roles/entities/role.entity';
       database: `${process.env.POSTGRES_DB}`,
       entities: [User, Role],
       synchronize: true,
+      logging: true,
     }),
     UsersModule,
     RolesModule,
