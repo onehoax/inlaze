@@ -38,7 +38,8 @@ VALUES
 INSERT INTO app_user 
 (full_name, email, password, phone, "roleId") 
 VALUES 
-('Michael Gibbs', 'mike@email.com', 'passss', '123456', 1),
-('Lauren Fletcher', 'lauren@email.com', 'passsss', '7891011', 2),
-('Peter McClean', 'p@email.com', 'passsss', '7891011', 2)
+('Michael Gibbs', 'mike@email.com', 'passss', '123456', (SELECT id FROM role WHERE name = 'admin')),
+('Lauren Fletcher', 'lauren@email.com', 'passsss', '7891011', (SELECT id FROM role WHERE name = 'general')),
+('Peter McClean', 'p@email.com', 'passsss', '7891011', (SELECT id FROM role WHERE name = 'general')),
+('Monica Sterling', 'mon@email.com', 'passsss', '7891011', null)
 ;
