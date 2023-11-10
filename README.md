@@ -64,7 +64,7 @@ $ npm run start:prod
 - The "POST" and "GET" endpoints don't require authentication
 - The "PATCH", and "DELETE" endpoints need authentication
   - You can go to the `"/auth/login"` endpoint to get a JWT token with a valid `email` and `password`
-  - You can then use this JWT token to get authenticated and access the endpoints that need it
+  - You can then use this JWT token to get authenticated and access the endpoints that need it (each JWT token is valid for 5 mins)
     - **_Click on `"Authenticate"` at the top right of the Swagger front end and enter your JWT_**; you can also click on the `"lock"` icon for each individual endpoint
 - Some starting values:
   - Roles:
