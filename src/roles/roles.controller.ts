@@ -8,12 +8,14 @@ import {
   Delete,
   ParseIntPipe,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -22,6 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Role } from './entities/role.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('roles')
 @ApiTags('roles')
@@ -72,6 +75,8 @@ export class RolesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     description:
       'update a role by id; the role must be present in in the role table; the new name must not conflict with existing ones.',
@@ -99,6 +104,8 @@ export class RolesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     description:
       'soft delete a role by id; the role must be present in in the role table.',

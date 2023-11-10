@@ -62,8 +62,6 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     description: 'get a single user by id.',
   })
@@ -82,6 +80,8 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     description:
       'update a user by id; the user must be present in in the app_user table; the new email must not conflict with existing ones; if role.id is not null, its value must be present in the role table.',
@@ -111,6 +111,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     description:
       'soft delete a user by id; the user must be present in in the app_user table.',

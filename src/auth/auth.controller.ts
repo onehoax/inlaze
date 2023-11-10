@@ -18,7 +18,8 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({
-    description: 'login as a user with email and passowrd.',
+    description:
+      'login as a user with email and passowrd; returns a JWT which you can then attach to request headers for endpoints that require authentication.',
   })
   @ApiNotFoundResponse({
     description:
@@ -31,7 +32,11 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: 'bad request response if criteria in description is not met.',
   })
-  @ApiOkResponse({ type: AuthEntity })
+  @ApiOkResponse({
+    type: AuthEntity,
+    description:
+      'returns a JWT which you can then attach to request headers for endpoints that require authentication.',
+  })
   async login(@Body() { email, password }: LoginDto) {
     const authEntity = await this.authService.login(email, password);
     return authEntity;

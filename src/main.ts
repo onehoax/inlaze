@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { TypeormExceptionFilter } from './typeorm-exception/typeorm-exception.filter';
+import { writeFileSync } from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  writeFileSync('./swagger-spec.json', JSON.stringify(document));
   SwaggerModule.setup('api', app, document);
 
   const { httpAdapter } = app.get(HttpAdapterHost);

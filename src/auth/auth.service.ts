@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { AuthEntity } from './entity/auth.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -24,14 +25,16 @@ export class AuthService {
     if (!user) throw new NotFoundException(`No user found for email: ${email}`);
 
     // step 2: check if the password is correct
-    const isPwdValid = user.password === password;
+    const isPwdValid = await bcrypt.compare(password, user.password);
 
     // if password does not match, throw an error
     if (!isPwdValid) throw new UnauthorizedException('Invalid password');
 
     // step 3: generate a JWT containing the user's id and
     return {
-      accessToken: this.jwtService.sign({ userId: user.id }),
+      accessToken: this.jwtService.sign(
+        { userId: user.id }, // { secret: process.env.JWT_SECRET },
+      ),
     };
   }
 }

@@ -9,6 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Role } from 'src/roles/entities/role.entity';
+import * as bcrypt from 'bcrypt';
+
+export const roundsOfHashing = 10;
 
 @Injectable()
 export class UsersService {
@@ -39,14 +42,20 @@ export class UsersService {
         },
       });
 
-      if (role) return this.userRepository.save(createUserDto);
-      else
+      if (!role)
         throw new NotFoundException(
           `Role with id: ${createUserDto.role.id} does not exits.`,
         );
-    } else {
-      return this.userRepository.save(createUserDto);
     }
+
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      roundsOfHashing,
+    );
+
+    createUserDto.password = hashedPassword;
+
+    return this.userRepository.save(createUserDto);
   }
 
   findAll() {
@@ -69,41 +78,48 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    // check that a user with the same email doesn't exist yet
-    const user = await this.userRepository.findOne({
-      where: { email: updateUserDto.email, is_deleted: false },
-    });
-
-    // if exists then there is a conflict
-    if (user !== null)
-      throw new ConflictException(
-        `User with email: ${user.email} already exists in the db.`,
-      );
-
-    // if role is not null, check that the role exists
-    if (updateUserDto.role.id !== null) {
-      const role = await this.roleRepository.findOne({
-        where: {
-          id: updateUserDto.role.id,
-          is_deleted: false,
-        },
+    const email = updateUserDto.email;
+    if (email !== undefined) {
+      // check that a user with the same email doesn't exist yet
+      const user = await this.userRepository.findOne({
+        where: { email: updateUserDto.email, is_deleted: false },
       });
 
-      if (role)
-        return this.userRepository.update(
-          { id: id, is_deleted: false },
-          updateUserDto,
+      // if exists then there is a conflict
+      if (user !== null)
+        throw new ConflictException(
+          `User with email: ${user.email} already exists in the db.`,
         );
-      else
-        throw new NotFoundException(
-          `Role with id: ${updateUserDto.role.id} does not exits.`,
-        );
-    } else {
-      return this.userRepository.update(
-        { id: id, is_deleted: false },
-        updateUserDto,
+    }
+
+    // if role is not null, check that the role exists
+    if (updateUserDto.role !== undefined) {
+      if (updateUserDto.role.id !== undefined) {
+        const role = await this.roleRepository.findOne({
+          where: {
+            id: updateUserDto.role.id,
+            is_deleted: false,
+          },
+        });
+
+        if (!role)
+          throw new NotFoundException(
+            `Role with id: ${updateUserDto.role.id} does not exits.`,
+          );
+      }
+    }
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        roundsOfHashing,
       );
     }
+
+    return this.userRepository.update(
+      { id: id, is_deleted: false },
+      updateUserDto,
+    );
   }
 
   async remove(id: number) {
